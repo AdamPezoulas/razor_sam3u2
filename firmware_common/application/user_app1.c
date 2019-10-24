@@ -102,15 +102,18 @@ void UserApp1Initialize(void)
     /* The task isn't properly initialized, so shut it down and don't run */
     UserApp1_pfStateMachine = UserApp1SM_Error;
   }
-  LedOn(BLUE);  //Turn on Blue LED
+  LedOff(WHITE);        //Diasabling discrete LEDs
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOff(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
   
-  LedToggle(PURPLE); //Toggle Purple LED
-  
-  LedBlink(ORANGE,LED_2HZ); //Blinks orange LED at 2 HZ
-  
-  LedPWM(WHITE, LED_PWM_5); //Sets white LED to 5% duty cycle
-  
-
+  LedOn(LCD_RED);       //Backlight to white
+  LedOn(LCD_BLUE);
+  LedOn(LCD_GREEN);
 } /* end UserApp1Initialize() */
 
   
