@@ -106,7 +106,9 @@ void UserApp1Initialize(void)
   
   LedToggle(PURPLE); //Toggle Purple LED
   
+  LedBlink(ORANGE,LED_2HZ); //Blinks orange LED at 2 HZ
   
+  LedPWM(WHITE, LED_PWM_5); //Sets white LED to 5% duty cycle
   
 
 } /* end UserApp1Initialize() */
