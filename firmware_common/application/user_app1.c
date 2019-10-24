@@ -102,6 +102,12 @@ void UserApp1Initialize(void)
     /* The task isn't properly initialized, so shut it down and don't run */
     UserApp1_pfStateMachine = UserApp1SM_Error;
   }
+  LedOn(BLUE);  //Turn on Blue LED
+  
+  LedToggle(PURPLE); //Toggle Purple LED
+  
+  
+  
 
 } /* end UserApp1Initialize() */
 
