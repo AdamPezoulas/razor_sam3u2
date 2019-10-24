@@ -155,13 +155,18 @@ static void UserApp1SM_Idle(void)
   
   static u16 u16BlinkCount = 0; //Resets every 500ms
   static u8 u8BinaryCounter = 0;//increments every 500ms
+  static u8 u8RollCount = 0;
     
   u16BlinkCount++;
   
-  if(u16BlinkCount == 500){
+  if(u16BlinkCount == 250){
     u16BlinkCount = 0;
     u8BinaryCounter++;
-    if(u8BinaryCounter == 64){
+    if(u8BinaryCounter == 16){
+      u8RollCount++;
+      if(u8RollCount == 8){
+        u8RollCount = 0;
+      }
       u8BinaryCounter = 0;
     }
     
@@ -205,7 +210,49 @@ static void UserApp1SM_Idle(void)
     LedOff(BLUE);
   }
   
+  switch(u8RollCount){
+  case 0: //Red
+    LedOn(LCD_GREEN);
+    LedOn(LCD_BLUE);
+    LedOn(LCD_RED);
+    break;
+  
+  case 2: //Yellow
+    LedOn(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
     
+  case 3: //Red
+    LedOff(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+  
+  case 4: //Green
+    LedOff(LCD_RED);
+    LedOff(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
+    
+  case 5: //Cyan
+    LedOff(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOn(LCD_GREEN);
+    break;
+  
+ case 6: //Blue
+    LedOff(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+    
+ case 7: //Purple
+    LedOn(LCD_RED);
+    LedOn(LCD_BLUE);
+    LedOff(LCD_GREEN);
+    break;
+  }
 } /* end UserApp1SM_Idle() */
      
 
