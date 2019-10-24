@@ -151,6 +151,60 @@ State Machine Function Definitions
 /* What does this state do? */
 static void UserApp1SM_Idle(void)
 {
+  
+  
+  static u16 u16BlinkCount = 0; //Resets every 500ms
+  static u8 u8BinaryCounter = 0;//increments every 500ms
+    
+  u16BlinkCount++;
+  
+  if(u16BlinkCount == 500){
+    u16BlinkCount = 0;
+    u8BinaryCounter++;
+    if(u8BinaryCounter == 64){
+      u8BinaryCounter = 0;
+    }
+    
+    LedToggle(WHITE);
+  }
+  
+  /*Parses u8BinaryCounter to set LEDs
+    RED is bit 0, ORANGE is bit 1
+    Yellow is bit 2, Green is bit 3
+    CYAN is Bit 4, BLUE is Bit 5*/
+  
+
+  if(u8BinaryCounter & 0x01){
+    LedOn(RED);
+  }else{
+    LedOff(RED);
+  }
+  if(u8BinaryCounter & 0x02){
+    LedOn(ORANGE);
+  }else{
+    LedOff(ORANGE);
+  }
+  if(u8BinaryCounter & 0x04){
+    LedOn(YELLOW);
+  }else{
+    LedOff(YELLOW);
+  }
+  if(u8BinaryCounter & 0x08){
+    LedOn(GREEN);
+  }else{
+    LedOff(GREEN);
+  }
+  if(u8BinaryCounter & 0x10){
+    LedOn(CYAN);
+  }else{
+    LedOff(CYAN);
+  }
+  if(u8BinaryCounter & 0x20){
+    LedOn(BLUE);
+  }else{
+    LedOff(BLUE);
+  }
+  
     
 } /* end UserApp1SM_Idle() */
      
