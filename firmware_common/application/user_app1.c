@@ -102,6 +102,19 @@ void UserApp1Initialize(void)
     /* The task isn't properly initialized, so shut it down and don't run */
     UserApp1_pfStateMachine = UserApp1SM_Error;
   }
+  
+  LedOff(WHITE);
+  LedOff(PURPLE);
+  LedOff(BLUE);
+  LedOff(CYAN);
+  LedOff(GREEN);
+  LedOn(YELLOW);
+  LedOff(ORANGE);
+  LedOff(RED);
+  
+  LedOn(LCD_RED);
+  LedOn(LCD_GREEN);
+  LedOn(LCD_BLUE);
 
 } /* end UserApp1Initialize() */
 
@@ -140,7 +153,89 @@ State Machine Function Definitions
 /* What does this state do? */
 static void UserApp1SM_Idle(void)
 {
+    //Password stored in array, 1 = Button 0, 2 = Button 1, 3 = Button 2 
+    u8 au8Code[10] = {1,2,3,2,1,0,0,0,0,0};
     
+    //User Input stored in input array
+    static u8 au8Input[10] = {0,0,0,0,0,0,0,0,0,0}; 
+    
+    //Counter of position in input array
+    static u8 u8Position = 0;
+    
+    //resets position if goes outside array bounds;
+    if(u8Position == 10)
+    {
+      u8Position = 0;
+    }
+    
+    //Checks what button is pressed and adds to the input array
+    if( WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      LedToggle(YELLOW);
+      LedOff(RED);
+      LedOff(GREEN);
+      
+      au8Input[u8Position] = 1;
+      u8Position++;
+    }
+    else if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      LedToggle(YELLOW);
+      LedOff(RED);
+      LedOff(GREEN);
+      
+      au8Input[u8Position] = 2;
+      u8Position++;
+    }
+    else if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      LedToggle(YELLOW);
+      LedOff(RED);
+      LedOff(GREEN);
+      
+      au8Input[u8Position] = 3;
+      u8Position++;
+    }
+    
+    //When Button 3 is pressed checks if arrays match and clears Input
+    
+    if(WasButtonPressed(BUTTON3))
+    {
+      ButtonAcknowledge(BUTTON3);
+      u8 u8Flag = 0;
+      
+      u8Position = 0;
+      LedOff(YELLOW);
+      LedOff(RED);
+      LedOff(GREEN);
+      
+      for(u8 i = 0; i < 10; i++)
+      {
+        if(au8Input[i] != au8Code[i])
+        {
+          u8Flag = 1;
+        }
+      }
+      
+      if(u8Flag == 1)
+      {
+        LedOn(RED);
+        u8Flag = 0;
+      }
+      else
+      {
+        LedOn(GREEN);
+      }
+      
+      for(u8 i = 0; i < 10; i++)
+      {
+        au8Input[i] = 0;
+      }
+      
+    }
 } /* end UserApp1SM_Idle() */
      
 
