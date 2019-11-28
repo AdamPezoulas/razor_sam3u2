@@ -117,7 +117,8 @@ void UserApp1Initialize(void)
   LedOn(LCD_BLUE);
   
   LcdCommand(LCD_CLEAR_CMD);
-  
+  u8 au8EnterCode[] = "Enter Password";
+  LcdMessage(LINE1_START_ADDR, au8EnterCode);
 
 } /* end UserApp1Initialize() */
 
@@ -160,8 +161,7 @@ static void UserApp1SM_Idle(void)
     u8 au8Code[10] = {1,2,3,2,1,0,0,0,0,0};
     u8 u8Flag = 0;
     
-    u8 au8EnterCode[] = "Enter Password";
-    u8 au8Message[] = "INCORRECT";
+    
     
     //User Input stored in input array
     static u8 au8Input[10] = {0,0,0,0,0,0,0,0,0,0}; 
@@ -170,8 +170,7 @@ static void UserApp1SM_Idle(void)
     static u8 u8Position = 0;
     
     //Prints message to enter password
-    LcdCommand(LCD_CLEAR_CMD);
-    LcdMessage(LINE1_START_ADDR, au8EnterCode);
+    
     
     
     //resets position if goes outside array bounds;
@@ -239,14 +238,15 @@ static void UserApp1SM_Idle(void)
       if(u8Flag == 1)
       {
         LedOn(RED);
-        au8Message = "INCORRECT";
- 
+        LcdCommand(LCD_CLEAR_CMD);
+        LcdMessage(LINE1_START_ADDR, "Incorrect Password");
         u8Flag = 0;
       }
       else
       {
         LedOn(GREEN);
-        au8Message = "CORRECT  ";
+        LcdCommand(LCD_CLEAR_CMD);
+        LcdMessage(LINE1_START_ADDR, "Correct Password");
       }
       
       //Clears Input Array
@@ -254,12 +254,12 @@ static void UserApp1SM_Idle(void)
       {
         au8Input[i] = 0;
       }
-      //Displays message
-       LcdCommand(LCD_CLEAR_CMD);
-      LcdMessage(LINE1_START_ADDR, au8Message);
       
       //Switch to state that waits for Button 3 Press
+        
+      
       UserApp1_pfStateMachine = UserApp1SM_WaitForPress;
+
     }
 } /* end UserApp1SM_Idle() */
      
@@ -267,28 +267,35 @@ static void UserApp1SM_Idle(void)
 static void UserApp1SM_WaitForPress(void)
 {
   
-  static u8 u8Timer = 0;
-  u8 au8PressB3[] = "Press Button 3 to retry";
+  static u32 u8Timer = 0;
+
   
   u8Timer++;
   
   //Prints message to press button 3 to continue after 4s
-  if(u8Timer == 4000)
+
+  //u8 au8PressB3[] = "Press 3";
+  if(u8Timer == 3000)
   {
+    u8Timer = 0;
     LcdCommand(LCD_CLEAR_CMD);
-    LcdMessage(LINE1_START_ADDR, au8PressB3); 
+    LcdMessage(LINE1_START_ADDR, "Press 3 to continue");
   }
-  
+    
   if(WasButtonPressed(BUTTON3))
     {
       ButtonAcknowledge(BUTTON3);
       UserApp1_pfStateMachine = UserApp1SM_Idle;
+      u8 au8EnterCode[] = "Enter Password"; 
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, au8EnterCode);
       LedOn(YELLOW);
       LedOff(GREEN);
       LedOff(RED);
       ButtonAcknowledge(BUTTON2);
       ButtonAcknowledge(BUTTON1);
       ButtonAcknowledge(BUTTON0);
+      u8Timer = 0;
     }   
 }
 /*-------------------------------------------------------------------------------------------------------------------*/
