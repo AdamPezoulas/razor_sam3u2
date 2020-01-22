@@ -38,6 +38,7 @@ void UserApp1Initialize(void);
 void UserApp1RunActiveState(void);
 
 
+
 /*------------------------------------------------------------------------------------------------------------------*/
 /*! @privatesection */                                                                                            
 /*--------------------------------------------------------------------------------------------------------------------*/
@@ -47,6 +48,8 @@ void UserApp1RunActiveState(void);
 State Machine Declarations
 ***********************************************************************************************************************/
 static void UserApp1SM_WaitForPress(void);
+static void UserApp1SM_SetCode(void);
+static void UserApp1SM_Menu(void);
 static void UserApp1SM_Idle(void);    
 static void UserApp1SM_Error(void); 
 

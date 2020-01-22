@@ -45,7 +45,8 @@ All Global variable names shall start with "G_<type>UserApp1"
 ***********************************************************************************************************************/
 /* New variables */
 volatile u32 G_u32UserApp1Flags;                          /*!< @brief Global state flags */
-
+    //Default Password stored in array, 1 = Button 0, 2 = Button 1, 3 = Button 2 
+static u8 G_au8UserApp1Code[10] = {1,2,3,0,0,0,0,0,0,0};
 
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
@@ -95,7 +96,7 @@ void UserApp1Initialize(void)
   /* If good initialization, set state to Idle */
   if( 1 )
   {
-    UserApp1_pfStateMachine = UserApp1SM_Idle;
+    UserApp1_pfStateMachine = UserApp1SM_Menu;
   }
   else
   {
@@ -117,8 +118,9 @@ void UserApp1Initialize(void)
   LedOn(LCD_BLUE);
   
   LcdCommand(LCD_CLEAR_CMD);
-  u8 au8EnterCode[] = "Enter Password";
-  LcdMessage(LINE1_START_ADDR, au8EnterCode);
+  LcdMessage(LINE1_START_ADDR,"Enter New Password?");
+  LcdMessage(LINE2_START_ADDR,"Yes");
+  LcdMessage(LINE2_START_ADDR+6,"No");
 
 } /* end UserApp1Initialize() */
 
@@ -155,10 +157,97 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 /*-------------------------------------------------------------------------------------------------------------------*/
 /* What does this state do? */
+static void UserApp1SM_Menu(void){
+  
+  //If button 1 pressed continue to code entry
+  if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      UserApp1_pfStateMachine = UserApp1SM_Idle;
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "Enter Password");
+      LedOn(YELLOW);
+      LedOff(GREEN);
+      LedOff(RED);
+      ButtonAcknowledge(BUTTON2);
+      ButtonAcknowledge(BUTTON3);
+      ButtonAcknowledge(BUTTON0);
+    }
+  
+  //change to UserApp1_SetCode and set password to blank
+  if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      UserApp1_pfStateMachine = UserApp1SM_SetCode;
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "Input Your Password");
+      LcdMessage(LINE2_START_ADDR, "Button 3 To Confirm");
+      LedOn(YELLOW);
+      LedOff(GREEN);
+      LedOff(RED);
+      ButtonAcknowledge(BUTTON2);
+      ButtonAcknowledge(BUTTON3);
+      ButtonAcknowledge(BUTTON0);
+      for(u8 i = 0; i < 10; i++)
+      {
+        G_au8UserApp1Code[i] = 0;
+      }
+    }
+  
+}
+
+static void UserApp1SM_SetCode(void)
+{
+  static u8 u8Position = 0;    
+    //sends to idle when password 10 characters
+    if(u8Position == 10)
+    {
+      UserApp1_pfStateMachine = UserApp1SM_Idle;
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "Enter Password");
+      LedToggle(YELLOW);
+    }
+
+    
+    //Checks what button is pressed and adds to the input array
+    if( WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      LedToggle(YELLOW);
+      
+      G_au8UserApp1Code[u8Position] = 1;
+      u8Position++;
+    }
+    else if(WasButtonPressed(BUTTON1))
+    {
+      ButtonAcknowledge(BUTTON1);
+      LedToggle(YELLOW);
+      
+      G_au8UserApp1Code[u8Position] = 2;
+      u8Position++;
+    }
+    else if(WasButtonPressed(BUTTON2))
+    {
+      ButtonAcknowledge(BUTTON2);
+      LedToggle(YELLOW);
+
+      G_au8UserApp1Code[u8Position] = 3;
+      u8Position++;
+    }
+    else if(WasButtonPressed(BUTTON3)&& u8Position != 0)
+    {
+      ButtonAcknowledge(BUTTON3);
+      LedToggle(YELLOW);
+      UserApp1_pfStateMachine = UserApp1SM_Idle;
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "Enter Password");
+      u8Position = 0;
+    }
+}
+
 static void UserApp1SM_Idle(void)
 {
-    //Password stored in array, 1 = Button 0, 2 = Button 1, 3 = Button 2 
-    u8 au8Code[10] = {1,2,3,2,1,0,0,0,0,0};
+    //Flag detecting if password fails
     u8 u8Flag = 0;
     
     
@@ -187,8 +276,6 @@ static void UserApp1SM_Idle(void)
     {
       ButtonAcknowledge(BUTTON0);
       LedToggle(YELLOW);
-      LedOff(RED);
-      LedOff(GREEN);
       
       au8Input[u8Position] = 1;
       u8Position++;
@@ -197,8 +284,6 @@ static void UserApp1SM_Idle(void)
     {
       ButtonAcknowledge(BUTTON1);
       LedToggle(YELLOW);
-      LedOff(RED);
-      LedOff(GREEN);
       
       au8Input[u8Position] = 2;
       u8Position++;
@@ -207,8 +292,6 @@ static void UserApp1SM_Idle(void)
     {
       ButtonAcknowledge(BUTTON2);
       LedToggle(YELLOW);
-      LedOff(RED);
-      LedOff(GREEN);
       
       au8Input[u8Position] = 3;
       u8Position++;
@@ -222,12 +305,10 @@ static void UserApp1SM_Idle(void)
       
       u8Position = 0;
       LedOff(YELLOW);
-      LedOff(RED);
-      LedOff(GREEN);
       
       for(u8 i = 0; i < 10; i++)
       {
-        if(au8Input[i] != au8Code[i])
+        if(au8Input[i] != G_au8UserApp1Code[i])
         {
           u8Flag = 1;
         }
@@ -262,7 +343,9 @@ static void UserApp1SM_Idle(void)
 
     }
 } /* end UserApp1SM_Idle() */
-     
+  
+
+
 
 static void UserApp1SM_WaitForPress(void)
 {
@@ -280,6 +363,7 @@ static void UserApp1SM_WaitForPress(void)
     u8Timer = 0;
     LcdCommand(LCD_CLEAR_CMD);
     LcdMessage(LINE1_START_ADDR, "Press 3 to continue");
+    LcdMessage(LINE2_START_ADDR, "Press 0 to set new");
   }
     
   if(WasButtonPressed(BUTTON3))
@@ -296,6 +380,25 @@ static void UserApp1SM_WaitForPress(void)
       ButtonAcknowledge(BUTTON1);
       ButtonAcknowledge(BUTTON0);
       u8Timer = 0;
+    }
+  if(WasButtonPressed(BUTTON0))
+    {
+      ButtonAcknowledge(BUTTON0);
+      UserApp1_pfStateMachine = UserApp1SM_SetCode;
+      LcdCommand(LCD_CLEAR_CMD);
+      LcdMessage(LINE1_START_ADDR, "Input Your Password");
+      LcdMessage(LINE2_START_ADDR, "Button 3 To Confirm");
+      LedOn(YELLOW);
+      LedOff(GREEN);
+      LedOff(RED);
+      ButtonAcknowledge(BUTTON2);
+      ButtonAcknowledge(BUTTON1);
+      ButtonAcknowledge(BUTTON0);
+      u8Timer = 0;
+      for(u8 i = 0; i < 10; i++)
+      {
+        G_au8UserApp1Code[i] = 0;
+      }
     }   
 }
 /*-------------------------------------------------------------------------------------------------------------------*/
